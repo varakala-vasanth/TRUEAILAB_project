@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrueAI Assist - Grounded GenAI Support Portal</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+    <!-- 1. Authentication Backdrop Overlay -->
+    <div id="auth-overlay" class="overlay-container">
+        <div class="auth-card glass-panel">
+            <div class="auth-header">
+                <div class="logo-area">
+                    <span class="logo-icon"><i class="fa-solid fa-brain-circuit"></i></span>
+                    <h2>TrueAI Assist</h2>
+                </div>
+                <p id="auth-tagline">Secure Authentication Required</p>
+            </div>
+            
+            <!-- Login Tab Panel -->
+            <div id="login-panel" class="auth-form-panel">
+                <form id="login-form">
+                    <div class="input-group">
+                        <label for="login-username"><i class="fa-solid fa-user"></i> Username</label>
+                        <input type="text" id="login-username" required placeholder="Enter username..." autocomplete="username">
+                    </div>
+                    <div class="input-group">
+                        <label for="login-password"><i class="fa-solid fa-lock"></i> Password</label>
+                        <input type="password" id="login-password" required placeholder="Enter password..." autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Sign In <i class="fa-solid fa-right-to-bracket"></i></button>
+                </form>
+                <div class="auth-footer-text">
+                    Don't have an account? <button id="go-to-register" class="link-btn">Create Account</button>
+                </div>
+            </div>
+            
+            <!-- Register Tab Panel -->
+            <div id="register-panel" class="auth-form-panel hide">
+                <form id="register-form">
+                    <div class="input-group">
+                        <label for="reg-username"><i class="fa-solid fa-user-plus"></i> Choose Username</label>
+                        <input type="text" id="reg-username" required placeholder="Min 3 characters..." autocomplete="username">
+                    </div>
+                    <div class="input-group">
+                        <label for="reg-password"><i class="fa-solid fa-lock"></i> Password</label>
+                        <input type="password" id="reg-password" required placeholder="Min 6 characters..." autocomplete="new-password">
+                    </div>
+                    <button type="submit" class="btn btn-accent btn-block">Register Account <i class="fa-solid fa-user-check"></i></button>
+                </form>
+                <div class="auth-footer-text">
+                    Already registered? <button id="go-to-login" class="link-btn">Sign In Here</button>
+                </div>
+            </div>
+            
+            <div id="auth-error" class="alert alert-danger hide"></div>
+            <div id="auth-success" class="alert alert-success hide"></div>
+        </div>
+    </div>
+
+    <!-- 2. Main Workspace Container -->
+    <div id="workspace-container" class="hide">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <span class="logo-icon glow-purple"><i class="fa-solid fa-microchip"></i></span>
+                    <h1>TrueAI Assist</h1>
+                </div>
+                <div class="sub-logo-tag">RAG GROUNDED PORTAL</div>
+            </div>
+            
+            <button id="new-chat-btn" class="btn btn-primary btn-block shadow-pulse">
+                <i class="fa-solid fa-plus"></i> New Chat Session
+            </button>
+            
+            <div class="sessions-pane">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Conversations</h3>
+                <div id="sessions-list" class="sessions-list">
+                    <!-- Session nodes injected here dynamically -->
+                </div>
+            </div>
+            
+            <div class="user-profile-widget">
+                <div class="user-meta">
+                    <div class="avatar"><i class="fa-solid fa-user-tie"></i></div>
+                    <div class="meta-text">
+                        <span id="user-display-name" class="username">Guest</span>
+                        <span class="role">Authorized Agent</span>
+                    </div>
+                </div>
+                <button id="logout-btn" class="btn-logout" title="Log Out">
+                    <i class="fa-solid fa-power-off"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Chat Console -->
+        <main class="chat-console glass-panel">
+            <header class="console-header">
+                <div class="header-left">
+                    <button id="sidebar-toggle" class="sidebar-toggle-btn"><i class="fa-solid fa-bars"></i></button>
+                    <h2 id="current-chat-title">Active Assistant Node</h2>
+                </div>
+                <div class="header-right">
+                    <div class="status-indicator">
+                        <span class="status-dot pulsing"></span>
+                        <span class="status-text">SECURE PORT 8000</span>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Message Window -->
+            <div id="chat-window" class="chat-window">
+                <!-- Welcome splash screen displayed when conversation is empty -->
+                <div id="welcome-splash" class="welcome-splash">
+                    <div class="welcome-icon animate-bounce"><i class="fa-solid fa-brain"></i></div>
+                    <h2>Welcome to TrueAI Assist Dashboard</h2>
+                    <p>Enter queries regarding company operations, IT security guidelines, credentials setup, API accesses, workspace configurations, integrations, or billing regulations. Responses are grounded inside verified knowledge bases.</p>
+                    
+                    <div class="features-grid">
+                        <div class="feature-card glass-panel">
+                            <span class="icon"><i class="fa-solid fa-compass-drafting"></i></span>
+                            <h4>Cosine RAG Matches</h4>
+                            <p>Real-time vector matching over SQLite stored embeddings.</p>
+                        </div>
+                        <div class="feature-card glass-panel">
+                            <span class="icon"><i class="fa-solid fa-shield-halved"></i></span>
+                            <h4>Grounding Fallback</h4>
+                            <p>Zero-hallucination policy via high similarity grounding thresholds.</p>
+                        </div>
+                        <div class="feature-card glass-panel">
+                            <span class="icon"><i class="fa-solid fa-history"></i></span>
+                            <h4>JWT persistent chats</h4>
+                            <p>Fully secure accounts and multi-session historical storage.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="starters-section">
+                        <h3><i class="fa-solid fa-bolt"></i> Sample Grounded Queries</h3>
+                        <div class="starter-cards">
+                            <div class="starter-card glass-panel clickable-starter" data-query="How do I reset my password?">
+                                "How do I reset my password?"
+                            </div>
+                            <div class="starter-card glass-panel clickable-starter" data-query="What is your subscription refund policy?">
+                                "What is your subscription refund policy?"
+                            </div>
+                            <div class="starter-card glass-panel clickable-starter" data-query="How do I connect my Slack workspace?">
+                                "How do I connect my Slack workspace?"
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="messages-container" class="messages-container hide">
+                    <!-- Message list bubbles injected here -->
+                </div>
+            </div>
+            
+            <!-- Loading Indicator -->
+            <div id="typing-indicator" class="typing-indicator hide">
+                <div class="bubble glass-panel">
+                    <span class="avatar-icon"><i class="fa-solid fa-robot"></i></span>
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span class="loading-label">Searching vector knowledge base...</span>
+                </div>
+            </div>
+
+            <!-- Input Console -->
+            <footer class="console-footer">
+                <form id="chat-input-form" class="input-form">
+                    <input type="text" id="chat-message-input" required placeholder="Ask a grounded RAG question..." autocomplete="off">
+                    <button type="submit" id="send-msg-btn" class="btn btn-accent btn-round">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+                <div class="footer-fineprint">
+                    <i class="fa-solid fa-shield"></i> Answers are grounded using semantic similarity indexes. Grounding Threshold: 0.70
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- 3. RAG Details Inspector Overlay Dialog -->
+    <div id="rag-inspector-modal" class="modal-overlay hide">
+        <div class="modal-card glass-panel">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-magnifying-glass-chart"></i> RAG Retrieval Audit Log</h3>
+                <button id="close-inspector-btn" class="close-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="metrics-row">
+                    <div class="metric-box">
+                        <span class="label">Similarity Matches</span>
+                        <span id="rag-chunks-count" class="value text-glow-cyan">0</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="label">Tokens Consumed</span>
+                        <span id="rag-tokens-count" class="value text-glow-purple">0</span>
+                    </div>
+                </div>
+                <div class="source-timeline">
+                    <h4>Retrieved Knowledge base Segments (Top Chunks)</h4>
+                    <div id="inspector-sources-container">
+                        <!-- Source cards loaded dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
